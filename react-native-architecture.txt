@@ -1,0 +1,79 @@
+drone-control-app/
+├── src/
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   └── Loading.tsx
+│   │   ├── flight/
+│   │   │   ├── AttitudeIndicator.tsx
+│   │   │   ├── TelemetryGauge.tsx
+│   │   │   └── EmergencyControls.tsx
+│   │   └── mission/
+│   │       ├── WaypointMarker.tsx
+│   │       └── MissionPathOverlay.tsx
+│   ├── screens/
+│   │   ├── MainScreen.tsx
+│   │   ├── MissionPlannerScreen.tsx
+│   │   ├── TelemetryScreen.tsx
+│   │   └── LogViewerScreen.tsx
+│   ├── core/
+│   │   ├── flight-control/
+│   │   │   ├── FlightController.ts
+│   │   │   ├── AttitudeEstimator.ts
+│   │   │   ├── PositionEstimator.ts
+│   │   │   ├── ControlAlgorithms.ts
+│   │   │   └── EmergencyHandler.ts
+│   │   ├── sensor-management/
+│   │   │   ├── SensorManager.ts
+│   │   │   ├── SensorFusionEngine.ts
+│   │   │   └── SensorDataProvider.ts
+│   │   ├── communication/
+│   │   │   ├── NetworkManager.ts
+│   │   │   ├── ProtocolHandler.ts
+│   │   │   └── ConnectionManager.ts
+│   │   └── mission-execution/
+│   │       ├── MissionPlanner.ts
+│   │       ├── MissionExecutor.ts
+│   │       └── MissionModels.ts
+│   ├── hooks/
+│   │   ├── useSensors.ts
+│   │   ├── useLocation.ts
+│   │   ├── useTelemetry.ts
+│   │   └── useMission.ts
+│   ├── services/
+│   │   ├── storage/
+│   │   │   ├── AsyncStorageService.ts
+│   │   │   └── LogStorage.ts
+│   │   ├── tensorflow/
+│   │   │   ├── ModelLoader.ts
+│   │   │   └── Predictor.ts
+│   │   └── networking/
+│   │       ├── SocketService.ts
+│   │       └── ApiService.ts
+│   ├── utils/
+│   │   ├── permissions.ts
+│   │   ├── eventBus.ts
+│   │   └── formatters.ts
+│   ├── constants/
+│   │   ├── colors.ts
+│   │   ├── layout.ts
+│   │   └── config.ts
+│   └── types/
+│       ├── mission.ts
+│       ├── telemetry.ts
+│       └── sensor.ts
+├── assets/
+│   ├── images/
+│   └── fonts/
+├── config/
+│   ├── app.config.js
+│   └── drone.config.js
+├── __tests__/
+│   ├── components/
+│   ├── services/
+│   └── utils/
+├── App.tsx
+├── babel.config.js
+├── tsconfig.json
+└── package.json
