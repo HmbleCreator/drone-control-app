@@ -1,45 +1,79 @@
+// hooks/useLocation.ts
 import { useState, useEffect } from 'react';
 import { Coordinates } from '../types/mission';
-import { GPSStatus } from '../types/telemetry';
-import PositionEstimator from '../core/flight-control/PositionEstimator';
+import { LocationTelemetry } from '../core/communication/TelemetryModels';
+import { PositionEstimator } from '../core/flight-control/PositionEstimator';
+import { GeofenceManager } from '../core/safety/GeofenceManager';
 
-// Define interfaces for the position estimator callbacks
-interface LocationSubscriber {
-  onLocation: (coords: Coordinates) => void;
-  onGpsStatus: (status: GPSStatus) => void;
-  onAccuracyChange: (accuracy: number) => void;
+interface LocationState {
+  coordinates: Coordinates | null;
+  accuracy: number | null;
+  heading: number | null;
+  speed: number | null;
+  isWithinGeofence: boolean;
+  distanceToHome: number | null;
 }
 
-interface LocationSubscription {
-  unsubscribe: () => void;
-}
-
-// Export these interfaces if they're not already defined in PositionEstimator
-export type { LocationSubscriber, LocationSubscription };
-
-export const useLocation = () => {
-  const [location, setLocation] = useState<Coordinates | null>(null);
-  const [gpsStatus, setGpsStatus] = useState<GPSStatus | null>(null);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
+export const useLocation = (homePosition?: Coordinates) => {
+  const [locationState, setLocationState] = useState<LocationState>({
+    coordinates: null,
+    accuracy: null,
+    heading: null,
+    speed: null,
+    isWithinGeofence: true,
+    distanceToHome: null
+  });
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const positionEstimator = new PositionEstimator();
+    const geofenceManager = new GeofenceManager();
     let mounted = true;
 
+    const initializeLocation = async () => {
+      try {
+        await positionEstimator.initialize();
+        
+        // Set up geofence if home position is provided
+        if (homePosition) {
+          geofenceManager.setHomePosition(homePosition);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err : new Error('Failed to initialize location services'));
+        }
+      }
+    };
+
+    initializeLocation();
+
     const locationSubscription = positionEstimator.subscribe({
-      onLocation: (coords: Coordinates) => {
-        if (mounted) {
-          setLocation(coords);
-        }
+      onLocation: (location: LocationTelemetry) => {
+        if (!mounted) return;
+
+        const coordinates: Coordinates = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          altitude: location.altitude
+        };
+
+        const isWithinGeofence = geofenceManager.checkPosition(coordinates);
+        const distanceToHome = homePosition ? 
+          geofenceManager.calculateDistanceToHome(coordinates) : 
+          null;
+
+        setLocationState({
+          coordinates,
+          accuracy: location.accuracy,
+          heading: location.heading,
+          speed: location.speed,
+          isWithinGeofence,
+          distanceToHome
+        });
       },
-      onGpsStatus: (status: GPSStatus) => {
+      onError: (err: Error) => {
         if (mounted) {
-          setGpsStatus(status);
-        }
-      },
-      onAccuracyChange: (acc: number) => {
-        if (mounted) {
-          setAccuracy(acc);
+          setError(err);
         }
       }
     });
@@ -47,8 +81,13 @@ export const useLocation = () => {
     return () => {
       mounted = false;
       locationSubscription.unsubscribe();
+      positionEstimator.cleanup();
     };
-  }, []);
+  }, [homePosition]);
 
-  return { location, gpsStatus, accuracy };
+  return {
+    ...locationState,
+    error,
+    isLocationAvailable: locationState.coordinates !== null
+  };
 };

@@ -22,7 +22,11 @@ export const useTelemetry = () => {
                 maxAcceleration: 2, // m/s^2
                 geofenceRadius: 100 // meters
             },
-            emergencyProcedures: undefined
+            emergencyProcedures: undefined,
+            sensors: {
+                enabledSensors: undefined,
+                updateRates: undefined
+            }
         });
 
         if (mounted) {

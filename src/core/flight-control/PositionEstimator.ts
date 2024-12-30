@@ -1,6 +1,7 @@
 // src/core/flight-control/PositionEstimator.ts
 
 class PositionEstimator {
+    [x: string]: any;
 
     private latitude: number = 0;
     private longitude: number = 0;

@@ -1,45 +1,39 @@
-// src/core/communication/ProtocolHandler.ts
+// src/core/communication/ConnectionManager.ts
 
-interface TelemetryData {
-    altitude: number;
-    latitude: number;
-    longitude: number;
-    speed: number;
-    batteryLevel: number;
-  }
-  
-  interface Command {
-    type: string; // e.g., "takeoff", "land", "navigate"
-    params?: Record<string, any>; // Additional parameters for the command
-  }
-  
-  class ProtocolHandler {
-    
-    public formatTelemetry(data: TelemetryData): string {
-      // Convert telemetry data to a specific format (e.g., JSON)
-      const formattedData = {
-        timestamp: new Date().toISOString(),
-        telemetry: data,
-      };
-      return JSON.stringify(formattedData);
-    }
-  
-    public parseCommand(command: string): Command | null {
-      try {
-        const parsedCommand = JSON.parse(command);
-        
-        // Validate command structure
-        if (typeof parsedCommand.type !== 'string') {
-          console.error("Invalid command type");
-          return null;
+class ConnectionManager {
+    private isConnected: boolean = false;
+
+    public async connect(): Promise<void> {
+        try {
+            await this.simulateConnection(); // Simulate establishing a connection
+            this.isConnected = true;
+            console.log("Connected to ground station.");
+        } catch (error) {
+            console.error("Failed to connect to ground station:", error);
         }
-        
-        return parsedCommand as Command; // Cast to Command type
-      } catch (error) {
-        console.error("Error parsing command:", error);
-        return null; // Return null if parsing fails
-      }
     }
-  }
-  
-  export default ProtocolHandler;
+
+    public async disconnect(): Promise<void> {
+        if (this.isConnected) {
+            await this.simulateDisconnection(); // Simulate disconnection logic
+            this.isConnected = false;
+            console.log("Disconnected from ground station.");
+        } else {
+            console.log("No active connection to disconnect.");
+        }
+    }
+
+    private async simulateConnection(): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay for connection
+    }
+
+    private async simulateDisconnection(): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, 500)); // Simulate delay for disconnection
+    }
+
+    public getConnectionStatus(): boolean {
+        return this.isConnected;
+    }
+}
+
+export default ConnectionManager;

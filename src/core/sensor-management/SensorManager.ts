@@ -4,6 +4,12 @@ import SensorDataProvider from './SensorDataProvider';
 import SensorFusionEngine from './SensorFusionEngine';
 
 class SensorManager {
+  subscribe(arg0: (data: any) => void) {
+      throw new Error('Method not implemented.');
+  }
+  cleanup() {
+      throw new Error('Method not implemented.');
+  }
   
   private dataProvider: SensorDataProvider;
   private fusionEngine: SensorFusionEngine;
@@ -13,7 +19,7 @@ class SensorManager {
     this.fusionEngine = new SensorFusionEngine();
   }
 
-  public async initialize(): Promise<void> {
+  public async initialize(p0: { enabledSensors: Set<string>; updateRates: Map<string, number>; }): Promise<void> {
     console.log("Initializing sensors...");
     // Additional initialization logic can go here
   }

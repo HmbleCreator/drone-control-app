@@ -1,4 +1,4 @@
-// src/core/communication/TelemetryModels.ts
+// src/core/communication/TelemetryData.ts
 
 export interface TelemetryData {
     altitude: number;

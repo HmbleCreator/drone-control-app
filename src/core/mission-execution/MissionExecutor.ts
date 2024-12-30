@@ -1,6 +1,6 @@
 // src/core/mission-execution/MissionExecutor.ts
 
-import { Mission, MissionTask, MissionStatus } from './MissionModels';
+import { Mission, MissionTask, MissionStatus, Waypoint } from './MissionModels';
 
 class MissionExecutor {
   

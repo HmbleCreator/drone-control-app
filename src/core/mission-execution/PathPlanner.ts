@@ -1,5 +1,5 @@
 // src/core/mission-execution/PathPlanner.ts
-import { Waypoint } from '../mission-execution/MissionModels';
+import { Waypoint } from './MissionModels';
 
 export class PathPlanner {
   public calculatePath(waypoints: Waypoint[]): Waypoint[] {

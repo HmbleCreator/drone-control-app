@@ -9,6 +9,7 @@ export interface Mission {
   }
   
   export interface Waypoint {
+    speed: number;
     latitude: number;
     longitude: number;
     altitude: number;

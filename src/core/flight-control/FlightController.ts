@@ -21,6 +21,12 @@ interface FlightSystemConfig {
 }
 
 class FlightController {
+  subscribeTelemetry(arg0: { onTelemetryUpdate: (data: any) => void; onSystemStatusUpdate: (status: any) => void; onConnectionChange: (connected: any) => void; }) {
+      throw new Error('Method not implemented.');
+  }
+  cleanup() {
+      throw new Error('Method not implemented.');
+  }
   private sensorManager: SensorManager;
   private motorController: MotorController;
   private missionManager: MissionManager;

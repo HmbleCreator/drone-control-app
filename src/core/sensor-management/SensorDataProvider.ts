@@ -1,12 +1,12 @@
 // src/core/sensor-management/SensorDataProvider.ts
 
-interface GPSData {
+export interface GPSData {
     latitude: number;
     longitude: number;
     altitude: number;
   }
   
-  interface IMUData {
+  export interface IMUData {
     rollRate: number;
     pitchRate: number;
     yawRate: number;
