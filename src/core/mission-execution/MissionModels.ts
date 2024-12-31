@@ -26,3 +26,14 @@ export interface Mission {
     currentTaskIndex: number;
     isCompleted: boolean;
   }
+
+  export interface ValidationError {
+    code: string;
+    message: string;
+    details?: any;  // Optional field for additional error information
+}
+
+export interface ValidationResult {
+    isValid: boolean;
+    errors: ValidationError[];
+}

@@ -16,6 +16,7 @@ export interface NotificationConfig {
     message: string;
     priority: NotificationPriority;
     vibrate?: boolean;
+    persistent?: boolean;  // Added this property
 }
 
 export interface NotificationHistoryItem {
@@ -171,7 +172,7 @@ export class NotificationService {
                 type: 'RTH',
                 id: `rth-${Date.now()}`,
                 timestamp: Date.now(),
-                payload: null
+                payload: undefined
             };
 
             await this.dataLink.sendCommand(command);

@@ -1,5 +1,5 @@
 // src/core/communication/TelemetryModels.ts
-export interface TelemetryModels {
+export interface TelemetryData {
   timestamp: number;
   sensorData: SensorTelemetry;
   locationData: LocationTelemetry;
@@ -56,7 +56,7 @@ export interface DroneCommand {
       longitude?: number;
       altitude?: number;
       speed?: number;
-  };
+  } | null;
   timestamp: number;
   id: string;
 }
