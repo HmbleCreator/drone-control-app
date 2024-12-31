@@ -1,13 +1,13 @@
-// useMission.ts
+// hooks/useMission.ts
 import { useState, useEffect, useCallback } from 'react';
 import { Mission, Waypoint, MissionProgress } from '../types/mission';
-import MissionManager from '../core/mission-execution/MissionManager';
+import { MissionManager } from '../core/mission-execution/MissionManager';
 
 export const useMission = (missionId?: string) => {
   const [mission, setMission] = useState<Mission | null>(null);
   const [progress, setProgress] = useState<MissionProgress | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!missionId) return;
@@ -35,7 +35,7 @@ export const useMission = (missionId?: string) => {
 
     loadMission();
 
-    const progressSubscription = missionManager.subscribeToProgress((missionProgress) => {
+    const progressSubscription = missionManager.subscribeToProgress((missionProgress: MissionProgress) => {
       if (mounted) {
         setProgress(missionProgress);
       }
@@ -80,3 +80,5 @@ export const useMission = (missionId?: string) => {
     addWaypoint
   };
 };
+
+export default useMission;
