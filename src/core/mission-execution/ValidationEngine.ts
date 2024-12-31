@@ -1,5 +1,5 @@
 // src/core/mission-execution/ValidationEngine.ts
-import { Mission, Waypoint } from './MissionModels';
+import { Mission, Waypoint, ValidationError, ValidationResult } from './MissionModels';
 
 export class ValidationEngine {
   public validateMission(mission: Mission): ValidationResult {

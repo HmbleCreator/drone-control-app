@@ -1,10 +1,13 @@
 // src/core/communication/DataLink.ts
-import { TelemetryModels, DroneCommand } from './TelemetryModels';
+import { TelemetryData,DroneCommand } from './TelemetryModels';
 import { BleManager, Device, BleError, Characteristic } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
 import { Vector3D } from '@/src/types/sensor';
 
 export class DataLink {
+    static getInstance(): DataLink {
+        throw new Error('Method not implemented.');
+    }
     private connected: boolean = false;
     private listeners: Map<string, Function[]> = new Map();
     private bleManager: BleManager;
@@ -103,13 +106,13 @@ export class DataLink {
         }
     }
 
-    public onTelemetry(callback: (data: TelemetryModels) => void): () => void {
-        this.addListener('telemetry', callback);
-        return () => this.removeListener('telemetry', callback);
+    public onTelemetry(callback: (data: TelemetryData) => void): () => void {
+      this.addListener('telemetry', callback);
+      return () => this.removeListener('telemetry', callback);
     }
 
-    private parseTelemetryData(value: string): TelemetryModels {
-        const buffer = Buffer.from(value, 'base64');
+    private parseTelemetryData(value: string): TelemetryData {
+      const buffer = Buffer.from(value, 'base64');
         let offset = 0;
 
         const timestamp = Number(buffer.readBigInt64LE(offset));
