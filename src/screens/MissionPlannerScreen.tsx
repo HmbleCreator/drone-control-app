@@ -1,40 +1,75 @@
-// MissionPlannerScreen.tsx
 import React, { useState, useCallback } from 'react';
-import { View, SafeAreaView, StyleSheet } from 'react-native';
+import { View, SafeAreaView, StyleSheet, Text } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { WaypointMarker } from '../components/mission/WaypointMarker';
 import { MissionPathOverlay } from '../components/mission/MissionPathOverlay';
 import { Button } from '../components/common/Button';
 import { useMission } from '../hooks/useMission';
-import type { Waypoint, Coordinates } from '../types/mission';
+import { Waypoint, Coordinates,  MissionStatus, Mission } from '../types/mission';
 
-export const MissionPlannerScreen: React.FC = () => {
+export const MissionPlannerScreen: React.FC<{ missionId: string }> = ({ missionId }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedWaypoint, setSelectedWaypoint] = useState<Waypoint | null>(null);
-  const { mission, updateMission, startMission } = useMission();
+  const { mission, updateMission, isLoading } = useMission(missionId);
 
-  const handleMapLongPress = useCallback((e: any) => {
-    if (!isEditing) return;
+  const handleMapLongPress = useCallback((e: { nativeEvent: { coordinate: Coordinates } }) => {
+    if (!isEditing || !mission) return;
 
-    const newWaypoint: Waypoint = {
-      id: Date.now().toString(),
+    const newWaypoint: Waypoint = {  // Changed from Omit to full Waypoint type
+      id: `wp-${Date.now()}`,  // Generate a unique ID
       type: 'hover',
       coordinates: {
         latitude: e.nativeEvent.coordinate.latitude,
         longitude: e.nativeEvent.coordinate.longitude,
         altitude: 50, // Default altitude
       },
+      heading: 0,
+      speed: mission.settings.maxSpeed / 2, // Default to half max speed
+      hoverTime: 0
     };
 
-    updateMission([...mission.waypoints, newWaypoint]);
+    updateMission({
+      waypoints: [...mission.waypoints, newWaypoint],
+      updatedAt: Date.now()
+    });
   }, [isEditing, mission, updateMission]);
 
   const handleWaypointDrag = useCallback((waypoint: Waypoint, coordinates: Coordinates) => {
+    if (!mission) return;
+
     const updatedWaypoints = mission.waypoints.map(wp =>
       wp.id === waypoint.id ? { ...wp, coordinates } : wp
     );
-    updateMission({ ...mission, waypoints: updatedWaypoints });
+    
+    updateMission({
+      waypoints: updatedWaypoints,
+      updatedAt: Date.now()
+    });
   }, [mission, updateMission]);
+
+  const canEditMission = useCallback((mission: Mission): boolean => {
+    return mission.status === MissionStatus.DRAFT || mission.status === MissionStatus.PLANNED;
+  }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centered}>
+          <Text>Loading mission...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!mission) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centered}>
+          <Text>No mission found</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,19 +96,14 @@ export const MissionPlannerScreen: React.FC = () => {
       </MapView>
 
       <View style={styles.controls}>
-        <Button
-          onPress={() => setIsEditing(!isEditing)}
-          variant={isEditing ? 'primary' : 'secondary'}
-        >
-          {isEditing ? 'Done Editing' : 'Edit Mission'}
-        </Button>
-        <Button
-          onPress={startMission}
-          variant="primary"
-          disabled={mission.waypoints.length < 2}
-        >
-          Start Mission
-        </Button>
+        {canEditMission(mission) && (
+          <Button
+            onPress={() => setIsEditing(!isEditing)}
+            variant={isEditing ? 'primary' : 'secondary'}
+          >
+            {isEditing ? 'Done Editing' : 'Edit Mission'}
+          </Button>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -95,4 +125,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
+
+export default MissionPlannerScreen;

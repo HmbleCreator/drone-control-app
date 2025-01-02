@@ -1,25 +1,94 @@
-// MainScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, SafeAreaView, StyleSheet } from 'react-native';
 import { AttitudeIndicator } from '../components/flight/AttitudeIndicator';
 import { TelemetryGauge } from '../components/flight/TelemetryGauge';
 import { EmergencyControls } from '../components/flight/EmergencyControls';
 import { useTelemetry } from '../hooks/useTelemetry';
-import { useLocation } from '../hooks/useLocation';
-import { Card } from '../components/common/Card';
-import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
-import type { DroneState } from '../types/telemetry';
 import FlightController from '../core/flight-control/FlightController';
+import { SensorManager } from '../core/sensor-management/SensorManager';
+import MotorController from '../core/flight-control/MotorController';
+import { MissionManager } from '../core/mission-execution/MissionManager';
+import SafetySystem from '../core/flight-control/SafetySystem';
+
+// Define the EmergencyProcedure type
+type EmergencyProcedure = {
+  type: 'land' | 'return_home' | 'hover';
+};
+
+type DroneState = 'IDLE' | 'EMERGENCY_LANDING' | 'RETURNING' | 'STOPPED';
 
 export const MainScreen: React.FC = () => {
   const { telemetry, isConnected } = useTelemetry();
-  const { location } = useLocation();
   const [droneState, setDroneState] = useState<DroneState>('IDLE');
+  
+  // Initialize controller with required dependencies
+  const [flightController] = useState(() => {
+    const sensorManager = new SensorManager();
+    const motorController = new MotorController();
+    const missionManager = new MissionManager();
+    
+    // Define emergency procedures for the safety system
+    const emergencyProcedures: EmergencyProcedure[] = [
+      { type: 'land' },
+      { type: 'return_home' },
+      { type: 'hover' }
+    ];
+    
+    const safetySystem = new SafetySystem(emergencyProcedures);
+    
+    return new FlightController(
+      sensorManager,
+      motorController,
+      missionManager,
+      safetySystem
+    );
+  });
+
+  useEffect(() => {
+    // Initialize flight controller with config
+    const initializeController = async () => {
+      try {
+        await flightController.initialize({
+          updateFrequency: 100,
+          safetyLimits: {
+            maxAltitude: 120,
+            maxVelocity: 15,
+            maxAcceleration: 4,
+            geofenceRadius: 100,
+          },
+          emergencyProcedures: {
+            procedures: [
+              { type: 'land' },
+              { type: 'return_home' },
+              { type: 'hover' }
+            ]
+          },
+          sensors: {
+            enabledSensors: new Set(['GPS', 'IMU', 'ALTIMETER']),
+            updateRates: new Map([
+              ['GPS', 1],
+              ['IMU', 100],
+              ['ALTIMETER', 10]
+            ])
+          }
+        });
+      } catch (error) {
+        console.error('Failed to initialize flight controller:', error);
+      }
+    };
+
+    initializeController();
+
+    // Cleanup on unmount
+    return () => {
+      flightController.cleanup();
+    };
+  }, [flightController]);
 
   const handleEmergencyLand = async () => {
     try {
-      await FlightController.emergencyLand();
+      await flightController.executeEmergencyProcedure({ type: 'land' });
       setDroneState('EMERGENCY_LANDING');
     } catch (error) {
       console.error('Emergency landing failed:', error);
@@ -28,7 +97,7 @@ export const MainScreen: React.FC = () => {
 
   const handleReturnHome = async () => {
     try {
-      await FlightController.returnToHome();
+      await flightController.executeEmergencyProcedure({ type: 'return_home' });
       setDroneState('RETURNING');
     } catch (error) {
       console.error('Return to home failed:', error);
@@ -37,7 +106,7 @@ export const MainScreen: React.FC = () => {
 
   const handleEmergencyStop = async () => {
     try {
-      await FlightController.emergencyStop();
+      await flightController.endFlight();
       setDroneState('STOPPED');
     } catch (error) {
       console.error('Emergency stop failed:', error);
@@ -51,18 +120,18 @@ export const MainScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Card style={styles.telemetryCard}>
+        <View style={[styles.telemetryCard, { padding: 16 }]}>
           <AttitudeIndicator
-            pitch={telemetry.pitch}
-            roll={telemetry.roll}
+            pitch={telemetry.attitude.pitch}
+            roll={telemetry.attitude.roll}
             size={200}
           />
-        </Card>
+        </View>
 
         <View style={styles.gaugesContainer}>
           <TelemetryGauge
             label="Altitude"
-            value={telemetry.altitude}
+            value={telemetry.verticalSpeed}
             unit="m"
             min={0}
             max={120}
@@ -71,7 +140,7 @@ export const MainScreen: React.FC = () => {
           />
           <TelemetryGauge
             label="Battery"
-            value={telemetry.batteryPercentage}
+            value={telemetry.battery.percentage}
             unit="%"
             min={0}
             max={100}
@@ -80,7 +149,7 @@ export const MainScreen: React.FC = () => {
           />
           <TelemetryGauge
             label="Signal"
-            value={telemetry.signalStrength}
+            value={telemetry.systemStatus.rcSignalStrength}
             unit="%"
             min={0}
             max={100}
@@ -111,9 +180,17 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   telemetryCard: {
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   gaugesContainer: {
     gap: 8,
   },
 });
+
+export default MainScreen;
