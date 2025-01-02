@@ -10,6 +10,7 @@ import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
 import type { DroneState } from '../types/telemetry';
+import FlightController from '../core/flight-control/FlightController';
 
 export const MainScreen: React.FC = () => {
   const { telemetry, isConnected } = useTelemetry();

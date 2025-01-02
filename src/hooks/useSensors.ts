@@ -1,8 +1,18 @@
 // hooks/useSensors.ts
 import { useState, useEffect } from 'react';
-import { SensorData, IMUData, GPSData } from '../types/sensor';
-import SensorManager from '../core/sensor-management/SensorManager';
-import SensorFusionEngine  from '../core/sensor-management/SensorFusionEngine';
+import { SensorManager } from '../core/sensor-management/SensorManager';
+import { SensorFusionEngine } from '../core/sensor-management/SensorFusionEngine';
+
+interface SensorData {
+  // Define your sensor data structure here
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  roll?: number;
+  pitch?: number;
+  yaw?: number;
+  timestamp?: number;
+}
 
 export const useSensors = () => {
   const [sensorData, setSensorData] = useState<SensorData | null>(null);
@@ -31,9 +41,9 @@ export const useSensors = () => {
           setIsInitialized(true);
         }
 
-        // Start sensor calibration
         setCalibrationStatus('in-progress');
         await sensorManager.calibrateSensors();
+        
         if (mounted) {
           setCalibrationStatus('completed');
         }
@@ -47,26 +57,25 @@ export const useSensors = () => {
 
     initializeSensors();
 
-    const sensorSubscription = sensorManager.subscribe((rawData) => {
+    const subscription = sensorManager.subscribe((rawData: any) => {
       if (mounted) {
-        // Process raw sensor data through fusion engine
-        const fusedData = fusionEngine.processSensorData(rawData);
-        setSensorData(fusedData);
+        const processedData = fusionEngine.processSensorData(rawData);
+        setSensorData(processedData);
       }
     });
 
     return () => {
       mounted = false;
-      sensorSubscription.unsubscribe();
+      subscription.unsubscribe();
       sensorManager.cleanup();
     };
   }, []);
 
-  return { 
-    sensorData, 
-    isInitialized, 
-    error, 
+  return {
+    sensorData,
+    isInitialized,
+    error,
     calibrationStatus,
-    isSensorHealthy: sensorData !== null && !error 
+    isSensorHealthy: sensorData !== null && !error
   };
 };

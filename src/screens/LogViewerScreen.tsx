@@ -1,23 +1,22 @@
 // LogViewerScreen.tsx
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, SafeAreaView, StyleSheet } from 'react-native';
+import { View, Text, FlatList, SafeAreaView } from 'react-native';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
 import { LogStorage } from '../services/storage/LogStorage';
 
-type LogEntry = {
-  id: string;
+interface LogEntry {
   timestamp: number;
-  level: 'info' | 'warning' | 'error';
+  type: 'INFO' | 'WARNING' | 'ERROR';
   message: string;
-  details?: any;
-};
+  data?: any;
+}
 
 export const LogViewerScreen: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'warning' | 'error'>('all');
+  const [filter, setFilter] = useState<'all' | 'WARNING' | 'ERROR'>('all');
 
   useEffect(() => {
     loadLogs();
@@ -25,7 +24,9 @@ export const LogViewerScreen: React.FC = () => {
 
   const loadLogs = async () => {
     try {
-      const storedLogs = await LogStorage.getLogs();
+      const endTime = Date.now();
+      const startTime = endTime - (24 * 60 * 60 * 1000);
+      const storedLogs = await LogStorage.getLogsBetweenDates(startTime, endTime);
       setLogs(storedLogs);
     } catch (error) {
       console.error('Failed to load logs:', error);
@@ -34,23 +35,33 @@ export const LogViewerScreen: React.FC = () => {
     }
   };
 
+  const getLogCardClassName = (type: LogEntry['type']) => {
+    const baseClass = 'mb-2';
+    switch (type) {
+      case 'ERROR':
+        return `${baseClass} border-l-4 border-l-red-500`;
+      case 'WARNING':
+        return `${baseClass} border-l-4 border-l-yellow-500`;
+      default:
+        return baseClass;
+    }
+  };
+
   const renderLogEntry = ({ item }: { item: LogEntry }) => (
-    <Card
-      style={[
-        styles.logEntry,
-        item.level === 'error' && styles.errorLog,
-        item.level === 'warning' && styles.warningLog,
-      ]}
-    >
-      <Text style={styles.timestamp}>
-        {new Date(item.timestamp).toLocaleString()}
-      </Text>
-      <Text style={styles.message}>{item.message}</Text>
-      {item.details && (
-        <Text style={styles.details}>
-          {JSON.stringify(item.details, null, 2)}
+    <Card className={getLogCardClassName(item.type)}>
+      <View className="p-3">
+        <Text className="text-xs text-gray-500 mb-1">
+          {new Date(item.timestamp).toLocaleString()}
         </Text>
-      )}
+        <Text className="text-sm text-gray-800">
+          {item.message}
+        </Text>
+        {item.data && (
+          <Text className="text-xs text-gray-600 mt-1 font-mono">
+            {JSON.stringify(item.data, null, 2)}
+          </Text>
+        )}
+      </View>
     </Card>
   );
 
@@ -58,78 +69,42 @@ export const LogViewerScreen: React.FC = () => {
     return <Loading text="Loading logs..." />;
   }
 
+  const filteredLogs = logs.filter(log => 
+    filter === 'all' || log.type === filter
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.filters}>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <View className="flex-row p-4 gap-2">
         <Button
           onPress={() => setFilter('all')}
           variant={filter === 'all' ? 'primary' : 'secondary'}
+          size="sm"
         >
           All
         </Button>
         <Button
-          onPress={() => setFilter('warning')}
-          variant={filter === 'warning' ? 'warning' : 'secondary'}
+          onPress={() => setFilter('WARNING')}
+          variant={filter === 'WARNING' ? 'warning' : 'secondary'}
+          size="sm"
         >
           Warnings
         </Button>
         <Button
-          onPress={() => setFilter('error')}
-          variant={filter === 'error' ? 'danger' : 'secondary'}
+          onPress={() => setFilter('ERROR')}
+          variant={filter === 'ERROR' ? 'danger' : 'secondary'}
+          size="sm"
         >
           Errors
         </Button>
       </View>
 
-      <FlatList
-        data={logs.filter(log => filter === 'all' || log.level === filter)}
+      <FlatList<LogEntry>
+        data={filteredLogs}
         renderItem={renderLogEntry}
-        keyExtractor={item => item.id}
-        style={styles.list}
+        keyExtractor={item => `${item.timestamp}-${item.message}`}
+        className="flex-1 px-4"
       />
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  filters: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 8,
-  },
-  list: {
-    flex: 1,
-    padding: 16,
-  },
-  logEntry: {
-    padding: 12,
-    marginBottom: 8,
-  },
-  errorLog: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#EF4444',
-  },
-  warningLog: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#F59E0B',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 4,
-  },
-  message: {
-    fontSize: 14,
-    color: '#1F2937',
-  },
-  details: {
-    fontSize: 12,
-    color: '#4B5563',
-    marginTop: 4,
-    fontFamily: 'monospace',
-  },
-});

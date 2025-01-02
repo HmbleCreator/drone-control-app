@@ -1,12 +1,5 @@
 // src/core/mission-execution/MissionExecutor.ts
-import { 
-  Mission, 
-  MissionProgress, 
-  Waypoint, 
-  MissionStatus,
-  WaypointAction,
-  WaypointTypeToAction
-} from '../../types/mission';
+import { Mission, MissionProgress, Waypoint, MissionStatus, WaypointAction,  WaypointTypeToAction} from '../../types/mission';
 
 type ProgressCallback = (progress: MissionProgress) => void;
 
@@ -218,52 +211,52 @@ export class MissionExecutor {
     if (!this.currentMission) {
       return 0;
     }
-  
+
     const remainingWaypoints = this.currentMission.waypoints.slice(this.currentWaypointIndex);
     let totalDistance = 0;
-    
+
     // Calculate 3D distance between consecutive waypoints
     for (let i = 0; i < remainingWaypoints.length - 1; i++) {
       const current = remainingWaypoints[i].coordinates;
       const next = remainingWaypoints[i + 1].coordinates;
-      
+
       // Convert lat/long to meters using Haversine formula
       const R = 6371000; // Earth's radius in meters
       const φ1 = this.toRadians(current.latitude);
       const φ2 = this.toRadians(next.latitude);
       const Δφ = this.toRadians(next.latitude - current.latitude);
       const Δλ = this.toRadians(next.longitude - current.longitude);
-    
+
       const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
                 Math.cos(φ1) * Math.cos(φ2) *
                 Math.sin(Δλ/2) * Math.sin(Δλ/2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      
+
       // Calculate horizontal distance
       const horizontalDistance = R * c;
-      
+
       // Calculate vertical distance (altitude difference)
       const verticalDistance = Math.abs((next.altitude ?? 0) - (current.altitude ?? 0));
-      
+
       // Calculate 3D distance using Pythagorean theorem
       const distance3D = Math.sqrt(
         Math.pow(horizontalDistance, 2) + Math.pow(verticalDistance, 2)
       );
-      
+
       totalDistance += distance3D;
     }
-  
+
     return totalDistance;
   }
-  
+
   private calculateEstimatedTime(distance: number): number {
     if (!this.currentMission) {
       return 0;
     }
-  
+
     let totalTime = 0;
     const remainingWaypoints = this.currentMission.waypoints.slice(this.currentWaypointIndex);
-    
+
     // Add time for remaining waypoints
     for (const waypoint of remainingWaypoints) {
       // Add time for waypoint-specific actions
@@ -283,35 +276,35 @@ export class MissionExecutor {
           break;
       }
     }
-  
+
     // Calculate travel time based on distance and speed
     const averageSpeed = this.calculateAverageSpeed(remainingWaypoints);
     const travelTime = distance / averageSpeed;
-  
+
     // Add 10% buffer for environmental factors and maneuvering
     return (totalTime + travelTime) * 1.1;
   }
-  
+
   private calculateRequiredBattery(distance: number): number {
     if (!this.currentMission) {
       return 0;
     }
-  
+
     // Base battery consumption per meter (percentage)
     const BASE_CONSUMPTION_PER_METER = 0.001;
-    
+
     // Additional consumption factors
     const HOVER_CONSUMPTION_PER_SECOND = 0.05;
     const PHOTO_CONSUMPTION = 0.1;
     const VIDEO_CONSUMPTION_PER_SECOND = 0.08;
     const ALTITUDE_CHANGE_FACTOR = 0.002;
-    
+
     let totalConsumption = 0;
     const remainingWaypoints = this.currentMission.waypoints.slice(this.currentWaypointIndex);
-    
+
     // Calculate distance-based consumption
     totalConsumption += distance * BASE_CONSUMPTION_PER_METER;
-    
+
     // Add consumption for specific actions
     for (const waypoint of remainingWaypoints) {
       switch (waypoint.type) {
@@ -333,29 +326,29 @@ export class MissionExecutor {
           break;
       }
     }
-  
+
     // Add wind resistance factor (simplified)
     totalConsumption *= 1.2;
-  
+
     // Add safety margin for return journey (50% extra)
     totalConsumption *= 1.5;
-  
+
     return totalConsumption;
   }
-  
+
   // Helper methods
   private toRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
   }
-  
+
   private calculateAverageSpeed(waypoints: Waypoint[]): number {
     const speeds = waypoints
       .map(w => w.speed)
       .filter((speed): speed is number => speed !== undefined);
-    
+
     if (speeds.length === 0) {
       return this.currentMission?.settings.maxSpeed ?? 10; // Default speed in m/s
     }
-    
+
     return speeds.reduce((sum, speed) => sum + speed, 0) / speeds.length;
   }

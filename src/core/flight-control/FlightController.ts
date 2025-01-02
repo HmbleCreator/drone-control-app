@@ -1,7 +1,7 @@
 import { EmergencyProcedure, EmergencyProcedures } from './EmergencyProcedures';
-import SensorManager from '../sensor-management/SensorManager';
+import { SensorManager } from '../sensor-management/SensorManager';
 import MotorController from './MotorController';
-import MissionManager from '../mission-execution/MissionManager';
+import { MissionManager } from '../mission-execution/MissionManager';
 import SafetySystem from './SafetySystem';
 import ControlAlgorithms from './ControlAlgorithms';
 
@@ -55,6 +55,7 @@ class FlightController {
       await this.sensorManager.initialize({
         enabledSensors: config.sensors.enabledSensors,
         updateRates: config.sensors.updateRates,
+        fusionAlgorithm: 'KALMAN'
       });
 
       // Validate motor health after sensor initialization

@@ -1,40 +1,53 @@
+
 // src/core/sensor-management/SensorManager.ts
+import  SensorDataProvider  from './SensorDataProvider';
+import { SensorFusionEngine } from './SensorFusionEngine';
 
-import SensorDataProvider from './SensorDataProvider';
-import SensorFusionEngine from './SensorFusionEngine';
+interface SensorManagerConfig {
+  enabledSensors: Set<string>;
+  updateRates: Map<string, number>;
+  fusionAlgorithm: 'KALMAN' | 'COMPLEMENTARY';  // Added this to match the config
+}
 
-class SensorManager {
-  subscribe(arg0: (data: any) => void) {
-      throw new Error('Method not implemented.');
-  }
-  cleanup() {
-      throw new Error('Method not implemented.');
-  }
-  
+type SensorCallback = (data: any) => void;
+
+export class SensorManager {
   private dataProvider: SensorDataProvider;
   private fusionEngine: SensorFusionEngine;
+  private subscribers: Set<SensorCallback>;
 
   constructor() {
     this.dataProvider = new SensorDataProvider();
     this.fusionEngine = new SensorFusionEngine();
+    this.subscribers = new Set();
   }
 
-  public async initialize(p0: { enabledSensors: Set<string>; updateRates: Map<string, number>; }): Promise<void> {
-    console.log("Initializing sensors...");
-    // Additional initialization logic can go here
+  public async initialize(config: SensorManagerConfig): Promise<void> {
+    console.log("Initializing sensors with config:", config);
+    // Initialization logic here
   }
 
-  public async getSensorData(): Promise<{ latitude: number; longitude: number; altitude: number; roll: number; pitch: number; yaw: number }> {
-    
+  public async calibrateSensors(): Promise<void> {
+    // Implement calibration logic
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+
+  public subscribe(callback: SensorCallback) {
+    this.subscribers.add(callback);
+    return {
+      unsubscribe: () => {
+        this.subscribers.delete(callback);
+      }
+    };
+  }
+
+  public cleanup(): void {
+    this.subscribers.clear();
+  }
+
+  public async getSensorData(): Promise<any> {
     const gpsData = await this.dataProvider.getGPSData();
     const imuData = await this.dataProvider.getIMUData();
-    
-    const fusedData = this.fusionEngine.fuse(gpsData, imuData);
-    
-    console.log(`Fused Data - Latitude: ${fusedData.latitude}, Longitude: ${fusedData.longitude}, Altitude: ${fusedData.altitude}, Roll: ${fusedData.roll}, Pitch: ${fusedData.pitch}, Yaw: ${fusedData.yaw}`);
-    
-    return fusedData;
+    return this.fusionEngine.fuse(gpsData, imuData);
   }
 }
-
-export default SensorManager;
