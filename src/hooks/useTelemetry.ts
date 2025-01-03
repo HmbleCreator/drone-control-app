@@ -17,19 +17,28 @@ interface TelemetrySubscription {
   unsubscribe: () => void;
 }
 
-export const useTelemetry = () => {
+export interface TelemetryHookResult {
+  telemetry: TelemetryData | null;
+  telemetryHistory: TelemetryHistoryItem[];
+  systemStatus: SystemStatus | null;
+  isConnected: boolean;
+  error: Error | null;
+  isInitializing: boolean;
+}
+
+export const useTelemetry = (): TelemetryHookResult => {
   const [telemetry, setTelemetry] = useState<TelemetryData | null>(null);
   const [telemetryHistory, setTelemetryHistory] = useState<TelemetryHistoryItem[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // Initialize required controllers
     const sensorManager = new SensorManager();
     const motorController = new MotorController();
     const missionManager = new MissionManager();
     
-    // Define emergency procedures correctly according to the interface
     const emergencyProcedures: EmergencyProcedure[] = [
       { type: 'land', description: 'Emergency landing procedure' },
       { type: 'return_home', description: 'Return to home location' },
@@ -37,7 +46,6 @@ export const useTelemetry = () => {
     ];
     
     const safetySystem = new SafetySystem(emergencyProcedures);
-    
     const flightController = new FlightController(
       sensorManager,
       motorController,
@@ -71,9 +79,17 @@ export const useTelemetry = () => {
         });
         if (mounted) {
           setIsConnected(true);
+          setError(null);
         }
       } catch (error) {
+        if (mounted) {
+          setError(error instanceof Error ? error : new Error('Failed to initialize telemetry'));
+        }
         console.error('Failed to initialize telemetry:', error);
+      } finally {
+        if (mounted) {
+          setIsInitializing(false);
+        }
       }
     };
 
@@ -106,11 +122,13 @@ export const useTelemetry = () => {
 
       telemetrySubscription = {
         unsubscribe: () => {
-          // Add any cleanup logic here
           console.log('Unsubscribing from telemetry');
         }
       };
     } catch (error) {
+      if (mounted) {
+        setError(error instanceof Error ? error : new Error('Failed to subscribe to telemetry'));
+      }
       console.error('Failed to subscribe to telemetry:', error);
     }
 
@@ -123,5 +141,5 @@ export const useTelemetry = () => {
     };
   }, []);
 
-  return { telemetry, telemetryHistory, systemStatus, isConnected };
+  return { telemetry, telemetryHistory, systemStatus, isConnected, error, isInitializing };
 };

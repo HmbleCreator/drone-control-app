@@ -3,6 +3,7 @@ import { Coordinates } from "./mission";
 import { SensorData } from "./sensor";
 
 export interface TelemetryData {
+  batteryPercentage: number;
   verticalSpeed: number;
   groundSpeed: number;
   distanceToHome: number;
