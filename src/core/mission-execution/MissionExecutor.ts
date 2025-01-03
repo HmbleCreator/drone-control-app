@@ -352,3 +352,4 @@ export class MissionExecutor {
 
     return speeds.reduce((sum, speed) => sum + speed, 0) / speeds.length;
   }
+}
