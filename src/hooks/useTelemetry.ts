@@ -6,7 +6,7 @@ import { SensorManager } from '../core/sensor-management/SensorManager';
 import MotorController from '../core/flight-control/MotorController';
 import { MissionManager } from '../core/mission-execution/MissionManager';
 import SafetySystem from '../core/flight-control/SafetySystem';
-import { EmergencyProcedure, EmergencyProcedures } from '../core/flight-control/EmergencyProcedures';
+import { EmergencyProcedure } from '../core/flight-control/EmergencyProcedures';
 
 interface TelemetryHistoryItem {
   timestamp: number;

@@ -1,18 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+// app/modal.tsx
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function ModalScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Modal</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/modal.tsx" />
-
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
-      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+      <View style={styles.content}>
+        <Text style={styles.title}>Modal</Text>
+        <Text style={styles.text}>This is a modal overlay screen.</Text>
+        
+        <Pressable 
+          style={styles.button}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.buttonText}>Dismiss</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -22,14 +27,32 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  content: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  text: {
+    marginBottom: 20,
+    color: '#666',
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
   },
 });

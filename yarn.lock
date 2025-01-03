@@ -1809,10 +1809,10 @@
     "@babel/runtime" "^7.13.10"
     "@radix-ui/react-compose-refs" "1.0.0"
 
-"@react-native-async-storage/async-storage@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-2.1.0.tgz#84ca82af320c16d3d8e617508ea523fe786b6781"
-  integrity sha512-eAGQGPTAuFNEoIQSB5j2Jh1zm5NPyBRTfjRMfCN0W1OakC5WIB5vsDyIQhUweKN9XOE2/V07lqTMGsL0dGXNkA==
+"@react-native-async-storage/async-storage@1.23.1":
+  version "1.23.1"
+  resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-1.23.1.tgz#cad3cd4fab7dacfe9838dce6ecb352f79150c883"
+  integrity sha512-Qd2kQ3yi6Y3+AcUlrHxSLlnBvpdCEMVGFlVBneVOjaFaPU61g1huc38g339ysXspwY1QZA2aNhrk/KlHGO+ewA==
   dependencies:
     merge-options "^3.0.4"
 
@@ -4865,10 +4865,10 @@ expo-font@~13.0.2:
   dependencies:
     fontfaceobserver "^2.1.0"
 
-expo-gl@~13.0.1:
-  version "13.0.1"
-  resolved "https://registry.npmjs.org/expo-gl/-/expo-gl-13.0.1.tgz"
-  integrity sha512-ESmDgUvyv7tDLhcjyOetXP8G/pgvuOAkSjumSBqej9XLXC+yhv0no25HdCJEu9H635hwcaow0ICkKwSsgxBzGg==
+expo-gl@15.0.2:
+  version "15.0.2"
+  resolved "https://registry.yarnpkg.com/expo-gl/-/expo-gl-15.0.2.tgz#8e4c1e9d29e13da9e7d3e38b55204168493a1605"
+  integrity sha512-XQ62hJNf0HvRv2pCydb4Nm1Khn8PvYy2HXWH7sgVMwzxCZvRkcOiyACl2OxRyrzWeIcGqyNt3ilG8LVJCNo1NQ==
   dependencies:
     invariant "^2.2.4"
 
@@ -4936,7 +4936,7 @@ expo-modules-core@2.1.2:
   dependencies:
     invariant "^2.2.4"
 
-expo-router@^4.0.15:
+expo-router@~4.0.15:
   version "4.0.15"
   resolved "https://registry.yarnpkg.com/expo-router/-/expo-router-4.0.15.tgz#bdc00b90bd60ab5ccb35ae51f31dcbc96c179949"
   integrity sha512-5MDy7iVzgi8lheRunsR4lTKEKTNqukC3uYSWhY370Nakdd+E/Woz+Vw1M67/KrnvefTV5hF97bNUUMzY+fyojw==
@@ -8247,10 +8247,10 @@ react-native-is-edge-to-edge@^1.1.6:
   resolved "https://registry.yarnpkg.com/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.1.6.tgz#69ec13f70d76e9245e275eed4140d0873a78f902"
   integrity sha512-1pHnFTlBahins6UAajXUqeCOHew9l9C2C8tErnpGC3IyLJzvxD+TpYAixnCbrVS52f7+NvMttbiSI290XfwN0w==
 
-react-native-maps@^1.20.1:
-  version "1.20.1"
-  resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-1.20.1.tgz#f613364886b2f72db56cafcd2bd7d3a35f470dfb"
-  integrity sha512-NZI3B5Z6kxAb8gzb2Wxzu/+P2SlFIg1waHGIpQmazDSCRkNoHNY4g96g+xS0QPSaG/9xRBbDNnd2f2/OW6t6LQ==
+react-native-maps@1.18.0:
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/react-native-maps/-/react-native-maps-1.18.0.tgz#48d253041a9baa5606b4f3647043d660a93b3b01"
+  integrity sha512-S17nYUqeMptgIPaAZuVRo+eRelPreBBYQWw6jsxU7qQ12p+THSfFaqabcNn7fBmsXhT3T27iIl8ek8v1H8BaGw==
   dependencies:
     "@types/geojson" "^7946.0.13"
 
@@ -8284,10 +8284,10 @@ react-native-screens@~4.4.0:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
 
-react-native-svg@^15.10.1:
-  version "15.10.1"
-  resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-15.10.1.tgz#5df51fca80cb1912648d058b67903f05eac0b8a6"
-  integrity sha512-Hqz/doQciVFK/Df2v+wsW96oY5jxlta7rZ31KQYo78dlgvAHEaGr6paEOAMvlIruw7EHNQ0Vc1ZmJPJF2kfIPQ==
+react-native-svg@15.8.0:
+  version "15.8.0"
+  resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-15.8.0.tgz#9b5fd4f5cf5675197b3f4cbfcc77c215de2b9502"
+  integrity sha512-KHJzKpgOjwj1qeZzsBjxNdoIgv2zNCO9fVcoq2TEhTRsVV5DGTZ9JzUZwybd7q4giT/H3RdtqC3u44dWdO0Ffw==
   dependencies:
     css-select "^5.1.0"
     css-tree "^1.1.3"

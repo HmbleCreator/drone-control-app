@@ -1,59 +1,62 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+// app/_layout.tsx
+import { Tabs } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { ComponentProps } from 'react';
 
-import { useColorScheme } from '@/components/useColorScheme';
+// Type for Feather icon names
+type FeatherIconName = ComponentProps<typeof Feather>['name'];
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
-export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+export default function AppLayout() {
+  const getTabIcon = (routeName: string): FeatherIconName => {
+    switch (routeName) {
+      case 'index':
+        return 'home';
+      case 'mission':
+        return 'map';
+      case 'telemetry':
+        return 'activity';
+      case 'logs':
+        return 'list';
+      default:
+        return 'circle';
     }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  };
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <Tabs
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          const routeName = route.name.replace('/', '');
+          return <Feather name={getTabIcon(routeName)} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Control',
+        }}
+      />
+      <Tabs.Screen
+        name="mission"
+        options={{
+          title: 'Mission',
+        }}
+      />
+      <Tabs.Screen
+        name="telemetry"
+        options={{
+          title: 'Telemetry',
+        }}
+      />
+      <Tabs.Screen
+        name="logs"
+        options={{
+          title: 'Logs',
+        }}
+      />
+    </Tabs>
   );
 }
