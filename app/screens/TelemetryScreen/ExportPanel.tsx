@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,23 @@ import {
   PanResponder,
   Dimensions,
   StyleSheet,
-  ScrollView,
   Platform,
   Alert,
   Share,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { ShareDialog } from '../../../src/components/ui/ShareDialog';
 import { formatDate } from '../../../src/utils/dateUtils';
 import { TelemetryMetric } from '../../../src/types/telemetry';
+
+// Add type definition for Icon component
+const Icon = FeatherIcon as unknown as React.ComponentType<{
+  name: string;
+  size: number;
+  color: string;
+  style?: any;
+}>;
 
 interface ExportPanelProps {
   onExport: (format: 'csv' | 'json', startDate: Date, endDate: Date) => Promise<string>;
@@ -264,7 +271,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
         <DateTimePicker
           value={startDate}
           mode="date"
-          onChange={(event, date) => {
+          onChange={(_event, date) => {
             setShowStartPicker(false);
             if (date) setStartDate(date);
           }}
@@ -276,7 +283,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
         <DateTimePicker
           value={endDate}
           mode="date"
-          onChange={(event, date) => {
+          onChange={(_event, date) => {
             setShowEndPicker(false);
             if (date) setEndDate(date);
           }}
